@@ -1,0 +1,397 @@
+一、App.vue
+0、改造index.html
+	<!DOCTYPE html>
+	<html>
+	<head>
+	  <meta charset="utf-8">
+	  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,minimum-scale=1, user-scalable=no">
+	  <title>bili</title>
+	  <link rel="shortcut icon" href="static/img/logo.png" type="image/x-icon"/>
+	</head>
+	<body>
+		<div id="app"></div>
+	</body>
+	</html>
+	
+	要点：在static目录下创建文件夹img，放一个logo.png
+	
+1、添加util.js
+	路径:static/js/util.js
+	功能：设置rem的标准单位，当窗口尺寸大于ui尺寸时按ui尺寸显示
+	let obj = {
+	  setRem() {
+		//预设UI尺寸为750像素
+		let uiW = 750;
+		let winW = document.documentElement.clientWidth;
+		//定义比例
+		let rate = winW / uiW;
+		let app = document.getElementById("app");
+		if (winW > uiW) {
+		  app.style.width = uiW + "px";
+		  app.style.margin = " 0 auto"
+		  return;
+		}
+		document.documentElement.style.fontSize = rate * 100 + "px";
+	  }
+	}
+	export {obj}
+	
+2、在App.vue中引入util.js文件，当App组件挂载结束时，设置rem方法
+	<script>
+		import {obj} from '../static/js/util.js';
+
+		export default {
+			name: 'App',
+			mounted() {
+				obj.setRem();
+			}
+		}
+	</script>
+	
+3、创建页脚item组件
+	路径：
+		components/Footer/item.vue
+	功能:
+		给foot组件使用
+		<template>
+		  <div class="itemWrap" @click="fn">
+			<!--  使用具名插槽  -->
+			<span v-show="bol"><slot name="activeImg"></slot></span>
+			<span v-show="!bol"><slot name="normalImg"></slot></span>
+			<p :class="{'active':bol}">{{txt}}</p>
+		  </div>
+		</template>
+
+		<script>
+			export default {
+				name: "item",
+				props: ["txt", "mark", "sel"],
+				computed: {
+					bol: function () {
+						return this.mark == this.sel;
+					}
+				},
+				methods: {
+					fn() {
+						this.$emit("change", this.mark);
+						//this.$router.push("/" + this.mark);
+					}
+				}
+			}
+		</script>
+		<style scoped>
+		  .itemWrap {
+			width: 20%;
+			float: left;
+			text-align: center;
+			font-size: 0;
+		  }
+
+		  .itemWrap img {
+			width: .6rem;
+			display: inline-block;
+		  }
+
+		  .itemWrap p {
+			font-size: .24rem;
+			color: #666;
+		  }
+
+		  .itemWrap .active {
+			color: #42bd56;
+		  }
+		</style>
+
+4、创建页脚foot组件(注意不要使用footer)
+	路径：
+		components/Footer/foot.vue
+		components/Footer/img(里面有本页面需要的图片资源)
+	功能：作为App的页脚进行使用
+	
+	<template>
+	  <div class="tabbar">
+		<Item txt="首页" mark="home" :sel="selected" @change="getVal">
+		  <img :src="ic_tab_home_active" slot="activeImg"/>
+		  <img :src="ic_tab_home_normal" slot="normalImg"/>
+		</Item>
+		<Item txt="书影音" mark="audio" :sel="selected" @change="getVal">
+		  <img :src="ic_tab_subject_active" slot="activeImg"/>
+		  <img :src="ic_tab_subject_normal" slot="normalImg"/>
+		</Item>
+		<Item txt="广播" mark="broadcast" :sel="selected" @change="getVal">
+		  <img :src="ic_tab_status_active" slot="activeImg"/>
+		  <img :src="ic_tab_status_normal" slot="normalImg"/>
+		</Item>
+		<Item txt="小组" mark="group" :sel="selected" @change="getVal">
+		  <img :src="ic_tab_group_active" slot="activeImg"/>
+		  <img :src="ic_tab_group_normal" slot="normalImg"/>
+		</Item>
+		<Item txt="我的" mark="mine" :sel="selected" @change="getVal">
+		  <img :src="ic_tab_profile_active" slot="activeImg"/>
+		  <img :src="ic_tab_profile_normal" slot="normalImg"/>
+		</Item>
+	  </div>
+	</template>
+
+	<script>
+		//引入item组件
+		import Item from './item';
+		//从img引入的图片资源
+		import ic_tab_home_normal from './img/ic_tab_home_normal.png';
+		import ic_tab_home_active from './img/ic_tab_home_active.png';
+		import ic_tab_group_active from './img/ic_tab_group_active.png';
+		import ic_tab_group_normal from './img/ic_tab_group_normal.png';
+		import ic_tab_subject_active from './img/ic_tab_subject_active.png';
+		import ic_tab_subject_normal from './img/ic_tab_subject_normal.png';
+		import ic_tab_profile_active from './img/ic_tab_profile_active.png';
+		import ic_tab_profile_normal from './img/ic_tab_profile_normal.png';
+		import ic_tab_status_active from './img/ic_tab_status_active.png';
+		import ic_tab_status_normal from './img/ic_tab_status_normal.png';
+
+		export default {
+			name: "foot",
+			components: {Item},
+			data() {
+				return {
+					selected: "home",
+					ic_tab_home_active,
+					ic_tab_home_normal,
+					ic_tab_group_active,
+					ic_tab_group_normal,
+					ic_tab_subject_active,
+					ic_tab_subject_normal,
+					ic_tab_profile_active,
+					ic_tab_profile_normal,
+					ic_tab_status_active,
+					ic_tab_status_normal
+				}
+			},
+			methods: {
+				getVal(val) {
+					this.selected = val;
+				}
+			}
+		}
+	</script>
+
+	<style scoped>
+	  .tabbar {
+		width: 100%;
+		height: 1rem;
+		border-top: 1px solid #ccc;
+		position: absolute;
+		bottom: 0;
+		background: #fff;
+	  }
+	</style>
+	
+5、添加foot组件到App中
+	路径：src/App.vue
+	功能：作为项目页面入口页面
+	<template>
+	  <div id="app">
+		<router-view/>
+		<MyFooter></MyFooter>
+	  </div>
+	</template>
+	<script>
+		import {obj} from '../static/js/util.js';
+		import MyFooter from '@/components/Footer/foot.vue';
+
+		export default {
+			name: 'App',
+			components: {MyFooter},
+			mounted() {
+				obj.setRem();
+			}
+		}
+	</script>
+
+	<style>
+	  * {
+		padding: 0;
+		margin: 0;
+		box-sizing: border-box;
+	  }
+
+	  html {
+		font-size: 100px;
+		width: 100%;
+		height: 100%;
+	  }
+
+	  #app {
+		border: 1px solid black;
+		position: relative;
+		height: 100%;
+	  }
+
+	  body {
+		font-size: 16px;
+		width: 100%;
+		height: 100%;
+	  }
+	</style>
+
+6、要点：
+	1)点击item组件实现页面的跳转是通过切换路由this.$router.push("/" + this.mark)实现的，
+	2)点击按钮时，其它按钮颜色变灰，通过item点击事件提交mark值给foot.vue父组件，
+	foot把mark赋值给item的props['mark'],同时赋值给props['sel']，这时所有的item的sel值是相等的，
+	如果sel==mark说明是点击的自己,通过computed计算属性bol，控制imgActive显示和p段落添加active类样式
+
+7、引入外部组件时使用的@表示"src"目录，在webpack.base.conf.js中有配置
+	resolve: {
+		extensions: ['.js', '.vue', '.json'],
+		alias: {
+		  'vue$': 'vue/dist/vue.esm.js',
+		  '@': resolve('src'),
+		}
+	}
+	
+	
+二、Home.vue组件的开发
+1、开发headers.vue
+	路径：components/headers.vue
+	功能：作为每个页面的头部进行使用
+	<template>
+	  <div :class="{headerWrap:true,green:bol}">
+		<span>{{txt}}</span>
+		<slot name="left"></slot>
+		<slot name="right"></slot>
+		<slot name="search"></slot>
+	  </div>
+	</template>
+
+	<script>
+		export default {
+			name: "headers",
+			props: ['txt', 'bol']
+		}
+	</script>
+
+	<style scoped>
+	  .headerWrap {
+		width: 100%;
+		height: .88rem;
+		border-bottom: 1px solid #ccc;
+		background: #f7f7f7;
+		text-align: center;
+		line-height: .48rem;
+		position: relative;
+	  }
+
+	  .green {
+		background: #48bd5a;
+	  }
+
+	  .headerWrap img {
+		width: .5rem;
+		position: absolute;
+	  }
+	  .headerWrap .rightImg {
+		top: .2rem;
+		right: .2rem;
+	  }
+	  .headerWrap .leftImg {
+		top: .2rem;
+		right: 1rem;
+	  }
+
+	  .headerWrap .search input {
+		width: 85%;
+		height: .6rem;
+		position: absolute;
+		left: .1rem;
+		top: .16rem;
+		border-radius: .1rem;
+		border: none;
+		text-indent: 3.5em;
+	  }
+	  .headerWrap .search img {
+		position: absolute;
+		width: .4rem;
+	  }
+	  .headerWrap .search .searchImg {
+		left: .2rem;
+		top: .26rem;
+	  }
+	  .headerWrap .search .scanImg {
+		right: 1.2rem;
+		top: .26rem;
+	  }
+	</style>
+
+2、开发home.vue
+	路径：src/pages/Home/home.vue
+	功能：显示首页信息
+	<template>
+	  <div id="wrap">
+		<!-- 首页的头部 -->
+		<MyHeader bol="true">
+		  <!-- 首页头部的右边图片，使用具名插槽slot="right" -->
+		  <img :src="chatUrl" class="rightImg" slot="right"/>
+		  <!-- 首页头部的搜索框，使用具名插槽slot="search" -->
+		  <div slot="search" class="search">
+			<input type="text" placeholder="影视 图书 唱片 小组等"/>
+			<img :src="searchUrl" class="searchImg"/>
+			<img :src="scanUrl" class="scanImg"/>
+		  </div>
+		</MyHeader>
+	  </div>
+	</template>
+	<script>
+		//引入headers.vue组件
+		import MyHeader from "@/components/headers";
+		//引入图片
+		import chatUrl from "./img/ic_chat_white.png";
+		import scanUrl from "./img/ic_scan_gray.png";
+		import searchUrl from "./img/ic_group_search_small.png";
+
+		export default {
+			name: "home",
+			components: {
+				MyHeader
+			},
+			data() {
+				return {
+					chatUrl,
+					scanUrl,
+					searchUrl,
+				}
+			}
+		}
+	</script>
+	<style scoped>
+	</style>
+	
+3、添加首页路由
+	路径：src/router/index.js
+	添加首页的路由：
+	import Vue from 'vue'
+	import Router from 'vue-router'
+	import Home from '@/pages/Home/home'
+
+	Vue.use(Router)
+	export default new Router({
+	  routes: [
+		{
+		  path: "/",
+		  name: "Home",
+		  component: Home
+		},
+		{
+		  path: "/home",
+		  name: "Home",
+		  component: Home
+		}
+	  ]
+	})
+
+4、创建banner.vue组件
+	路径：src/components/banner.vue
+	功能：实现组件轮播效果，作为home中间的子组件使用
+	
+	
+
+

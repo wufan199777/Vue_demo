@@ -1,0 +1,50 @@
+<script src="../js/swiper.js"></script>
+
+<div class="swiper-container">
+    <div class="swiper-wrapper">
+        <div class="swiper-slide">
+            <img src="../img/expo.png" alt="">
+        </div>
+        <div class="swiper-slide">
+            <img src="../img/react.png" alt="">
+        </div>
+        <div class="swiper-slide">
+            <img src="../img/webpack.png" alt="">
+        </div>
+        <div class="swiper-slide">
+            <img src="../img/typescript.png" alt="">
+        </div>
+    </div>
+    <!-- 如果需要分页器 -->
+    <div class="swiper-pagination"></div>
+</div>
+
+
+<script>
+    new Swiper(".swiper-container", {
+        loop: true,
+        autoplay: {
+            delay: 2000
+        },
+        direction: "horizontal",
+        pagination: {el: ".swiper-pagination"},
+        effect: "slide"
+    });
+</script>
+
+<style>
+    @import url(../css/swiper.css);
+
+    * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    .swiper-container,
+    .swiper-wrapper,
+    .swiper-slide {
+        width: 300px;
+        height: 150px;
+    }
+</style>
